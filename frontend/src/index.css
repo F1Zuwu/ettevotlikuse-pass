@@ -1,2 +1,21 @@
 @import "tailwindcss";
 
+.h-593 {
+    height: 593px;
+}
+
+.h-668 {
+    height: 668px;
+}
+
+.bg-main-pink {
+    background-color: #FF00FF;
+}
+
+.bg-main-cyan {
+    background-color: #00E1FF;
+}
+
+.bg-main-green {
+    background-color: #8ACE00;
+}
