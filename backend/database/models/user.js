@@ -7,12 +7,8 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      firstname: {
-        type: DataTypes.STRING(50),
-        allowNull: false,
-      },
-      lastname: {
-        type: DataTypes.STRING(50),
+      name: {
+        type: DataTypes.STRING(120),
         allowNull: false,
       },
       email: {
@@ -22,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       password: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       phone: {
         type: DataTypes.STRING(30),
@@ -30,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       birthday: {
         type: DataTypes.DATEONLY,
-        allowNull: false,
+        allowNull: true,
       },
       profileimg: {
         type: DataTypes.STRING,
@@ -40,6 +36,16 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("admin", "user"),
         allowNull: false,
         defaultValue: "user",
+      },
+      googleId: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+      },
+      promotional_content: {
+        type: DataTypes.BOOLEAN,
+        
+        defaultValue: false,
       },
     },
     {
