@@ -45,16 +45,24 @@ const Register = () => {
                     <img class="py-3 px-3" src={password}></img>
                     <input class="h-10 w-full" id="kinnita_parool" placeholder="Kinnita parool" type="password"></input>
                 </div>
-                <div class="flex">
-                    <input class="cursor-pointer" id="noustun" type="checkbox"></input>
-                    <h1>Nõustun tingimustega</h1>
+                <label class="flex items-center gap-3 cursor-pointer select-none py-2">
+                    <input
+                        id="noustun"
+                        type="checkbox"
+                        class="appearance-none relative w-5 h-5 rounded-full border-2 border-zinc-400 checked:bg-black checked:border-black focus:outline-none focus:ring-2 focus:ring-black/30 after:content-[''] checked:after:content-['✓'] after:absolute after:inset-0 after:flex after:items-center after:justify-center after:text-transparent checked:after:text-white after:text-xs after:font-bold"
+                    />
+                    <span>Nõustun tingimustega</span>
+                </label>
                 </div>
-                </div>
-                <div class="flex">
-                    <input class="cursor-pointer" id="värskendused" type="checkbox"></input>
-                    <h1>Nõustun saama värskendusi e-posti teel</h1>
-                </div>
-                <button class="cursor-pointer w-full"><h1 class="text-center">Registreeru</h1></button>
+                <label class="flex items-center gap-3 cursor-pointer select-none py-2">
+                    <input
+                        id="värskendused"
+                        type="checkbox"
+                        class="appearance-none relative w-5 h-5 rounded-full border-2 border-zinc-400 checked:bg-black checked:border-black focus:outline-none focus:ring-2 focus:ring-black/30 after:content-[''] checked:after:content-['✓'] after:absolute after:inset-0 after:flex after:items-center after:justify-center after:text-transparent checked:after:text-white after:text-xs after:font-bold"
+                    />
+                    <span>Nõustun saama värskendusi e-posti teel</span>
+                </label>
+                <button class="cursor-pointer w-full bg-black rounded-full py-4 mt-8"><h1 class="text-center text-white">Registreeru</h1></button>
                 </div>
             </div>
         </div>

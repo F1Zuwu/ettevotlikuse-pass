@@ -23,3 +23,11 @@
 .form-bg {
     background-color: #E8E8E8;
 }
+
+.btn-border-pink {
+    border-left: 6px solid #FF00FF;
+} 
+
+.btn-border-cyan {
+    border-left: 6px solid #00E1FF;
+}
