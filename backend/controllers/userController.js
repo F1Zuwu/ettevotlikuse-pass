@@ -17,7 +17,7 @@ class userController extends BaseController {
 
   generateToken(user) {
     return jwt.sign(
-      { id: user.user_id, firstname: user.firstname, email: user.email },
+      { id: user.user_id, email: user.email, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "24h" },
     );
@@ -167,15 +167,21 @@ class userController extends BaseController {
 
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-  const { name, phone, birthday, profileimg, promotional_content } = req.body;
+  const { name, phone, birthday, profileimg, promotional_content, role } = req.body;
 
-  await user.update({
+  const updates = {
     name: name ?? user.name,
     phone: phone ?? user.phone,
     birthday: birthday ?? user.birthday,
     profileimg: profileimg ?? user.profileimg,
     promotional_content: promotional_content ?? user.promotional_content,
-  });
+  };
+
+    if (req.user.role === 'admin' && role) {
+    updates.role = role;
+  }
+
+  await user.update(updates);
 
   return res.status(200).json({ success: true, message: 'Profile updated', user });
 }
