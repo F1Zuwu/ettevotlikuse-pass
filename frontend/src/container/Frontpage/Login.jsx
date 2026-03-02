@@ -15,18 +15,29 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
 
     const googleLogin = useGoogleLogin({
-        onSuccess: async (codeResponse) => {
+        onSuccess: async (tokenResponse) => {
             setError("");
             setLoading(true);
 
             try {
+                // Get user info from Google using the access token
+                const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: {
+                        Authorization: `Bearer ${tokenResponse.access_token}`,
+                    },
+                });
+
+                const userInfo = await userInfoResponse.json();
+
+                // Send to backend
                 const response = await fetch("http://localhost:3005/api/google", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        code: codeResponse.code,
+                        accessToken: tokenResponse.access_token,
+                        userInfo: userInfo,
                     }),
                 });
 
@@ -49,7 +60,6 @@ const Login = () => {
         onError: () => {
             setError("Google login failed. Please try again.");
         },
-        flow: 'auth-code',
     });
 
     const handleLogin = async (e) => {

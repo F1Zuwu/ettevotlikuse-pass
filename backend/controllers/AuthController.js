@@ -10,47 +10,33 @@ class AuthController extends BaseController {
 
         this.googleClient = new OAuth2Client(
             process.env.GOOGLE_CLIENT_ID,
-            process.env.GOOGLE_CLIENT_SECRET,
-            'postmessage' // Special redirect URI for @react-oauth/google with auth-code flow
+            process.env.GOOGLE_CLIENT_SECRET
         );
     }
 
     async googleAuth(req, res) {
         try {
-            const { code, credential } = req.body;
+            const { accessToken, userInfo } = req.body;
 
-            let email, name, picture, sub, email_verified;
-
-            // Handle authorization code flow
-            if (code) {
-                // Exchange authorization code for tokens
-                const { tokens } = await this.googleClient.getToken(code);
-                this.googleClient.setCredentials(tokens);
-
-                // Verify the ID token
-                const ticket = await this.googleClient.verifyIdToken({
-                    idToken: tokens.id_token,
-                    audience: process.env.GOOGLE_CLIENT_ID,
-                });
-
-                const payload = ticket.getPayload();
-                ({ sub, email, name, picture, email_verified } = payload);
-            } 
-            // Handle credential (ID token) flow - backward compatibility
-            else if (credential) {
-                const ticket = await this.googleClient.verifyIdToken({
-                    idToken: credential,
-                    audience: process.env.GOOGLE_CLIENT_ID,
-                });
-
-                const payload = ticket.getPayload();
-                ({ sub, email, name, picture, email_verified } = payload);
-            } else {
+            if (!accessToken || !userInfo) {
                 return res.status(400).json({ 
                     success: false, 
-                    message: "Missing code or credential" 
+                    message: "Missing access token or user info" 
                 });
             }
+
+            // Verify the access token by checking with Google
+            const response = await fetch(`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${accessToken}`);
+            const tokenInfo = await response.json();
+
+            if (tokenInfo.error || tokenInfo.audience !== process.env.GOOGLE_CLIENT_ID) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Invalid access token" 
+                });
+            }
+
+            const { sub, email, name, picture, email_verified } = userInfo;
 
             if (!email_verified) {
                 return res.status(400).json({ 
@@ -88,7 +74,7 @@ class AuthController extends BaseController {
                 { expiresIn: "7d" }
             );
 
-            return this.sendResponse(res, {
+            return res.status(200).json({
                 success: true,
                 message: "User logged in via Google.",
                 token,
