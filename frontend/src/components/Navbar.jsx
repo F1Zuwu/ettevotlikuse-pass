@@ -2,7 +2,7 @@ import langIco from "../assets/icons/lang.png"
 
 const Navbar = () => {
     return (
-        <div class="bg-black text-white mt-12">
+        <div class="bg-black text-white">
             <div class="h-24 flex items-center px-10">
                 <h1 class="text-3xl">Ettevõtlikkuse Pass</h1>
                 <div class="absolute right-10 flex items-center  ">
