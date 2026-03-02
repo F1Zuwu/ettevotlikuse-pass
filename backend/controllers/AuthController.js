@@ -8,24 +8,55 @@ class AuthController extends BaseController {
         super();
         this.googleAuth = this.googleAuth.bind(this);
 
-        this.googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+        this.googleClient = new OAuth2Client(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            'postmessage' // Special redirect URI for @react-oauth/google with auth-code flow
+        );
     }
 
     async googleAuth(req, res) {
         try {
-            const { credential } = req.body;
+            const { code, credential } = req.body;
 
-            // Verify Google token
-            const ticket = await this.googleClient.verifyIdToken({
-                idToken: credential,
-                audience: process.env.GOOGLE_CLIENT_ID,
-            });
+            let email, name, picture, sub, email_verified;
 
-            const payload = ticket.getPayload();
-            const { sub, email, name, picture, email_verified } = payload;
+            // Handle authorization code flow
+            if (code) {
+                // Exchange authorization code for tokens
+                const { tokens } = await this.googleClient.getToken(code);
+                this.googleClient.setCredentials(tokens);
+
+                // Verify the ID token
+                const ticket = await this.googleClient.verifyIdToken({
+                    idToken: tokens.id_token,
+                    audience: process.env.GOOGLE_CLIENT_ID,
+                });
+
+                const payload = ticket.getPayload();
+                ({ sub, email, name, picture, email_verified } = payload);
+            } 
+            // Handle credential (ID token) flow - backward compatibility
+            else if (credential) {
+                const ticket = await this.googleClient.verifyIdToken({
+                    idToken: credential,
+                    audience: process.env.GOOGLE_CLIENT_ID,
+                });
+
+                const payload = ticket.getPayload();
+                ({ sub, email, name, picture, email_verified } = payload);
+            } else {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Missing code or credential" 
+                });
+            }
 
             if (!email_verified) {
-                return this.sendError(res, "Email not verified by Google");
+                return res.status(400).json({ 
+                    success: false, 
+                    message: "Email not verified by Google" 
+                });
             }
 
             // Check if user exists
@@ -52,15 +83,24 @@ class AuthController extends BaseController {
 
             // Generate JWT
             const token = jwt.sign(
-                { id: user.user_id, email: user.email },
+                { id: user.user_id, email: user.email, role: user.role },
                 process.env.JWT_SECRET,
                 { expiresIn: "7d" }
             );
 
             return this.sendResponse(res, {
                 success: true,
+                message: "User logged in via Google.",
                 token,
-                user,
+                user: {
+                    id: user.user_id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    birthday: user.birthday,
+                    picture: user.profileimg,
+                    role: user.role,
+                },
             });
 
         } catch (error) {
