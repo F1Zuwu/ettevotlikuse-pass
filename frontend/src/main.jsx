@@ -10,6 +10,7 @@ import Home from './container/Frontpage/Home';
 import Register from './container/Frontpage/Register';
 import Login from './container/Frontpage/Login';
 import Info from './container/Frontpage/Info';
+import Funktsioonid from './container/Frontpage/Funktsioonid';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -22,6 +23,7 @@ root.render(
         <Route path='/register' element={<Register />} />
         <Route path='/login' element={<Login />} />
         <Route path='/info' element={<Info />} />
+        <Route path='/funktsioonid' element={<Funktsioonid />} />
       </Routes>
     </BrowserRouter>
   </GoogleOAuthProvider>

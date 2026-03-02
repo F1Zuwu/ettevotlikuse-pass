@@ -15,19 +15,19 @@ const Navbar = () => {
                 </div>
             </div>
             <div class="px-10 py-4 flex gap-20 relative">
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer" onClick={() => window.location.href = "/"}>
                     <a>Avaleht</a>
                     <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
                         <path d="M4.82053 8.34939L9.64106 -2.86102e-06H1.00136e-05L4.82053 8.34939Z" fill="white" />
                     </svg>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer" onClick={() => window.location.href = "/info"}>
                     <a>Ettevõtlikkuse Pass</a>
                     <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
                         <path d="M4.82053 8.34939L9.64106 -2.86102e-06H1.00136e-05L4.82053 8.34939Z" fill="white" />
                     </svg>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer" onClick={() => window.location.href ="/funktsioonid"}>
                     <a>Funktsioonid</a>
                     <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
                         <path d="M4.82053 8.34939L9.64106 -2.86102e-06H1.00136e-05L4.82053 8.34939Z" fill="white" />
@@ -41,7 +41,7 @@ const Navbar = () => {
                 </div>
 
                 <div class="absolute right-10 flex top-2">
-                    <button class="px-4 py-2 bg-white text-black flex items-center gap-2 rounded-full">
+                    <button class="px-4 py-2 bg-white text-black flex items-center gap-2 rounded-full cursor-pointer" onClick={() => window.location.href = "/login"}>
                         <h1 class="mr-6">Logi sisse</h1>
                         <svg class="absolute right-4 top-3" xmlns="http://www.w3.org/2000/svg" width="17" height="25" viewBox="0 0 17 30" fill="none">
                             <ellipse cx="8.6857" cy="5.49032" rx="5.21146" ry="5.49032" fill="black" />
