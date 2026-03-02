@@ -33,7 +33,7 @@ const Navbar = () => {
                         <path d="M4.82053 8.34939L9.64106 -2.86102e-06H1.00136e-05L4.82053 8.34939Z" fill="white" />
                     </svg>
                 </div>
-                <div class="flex items-center">
+                <div class="flex items-center cursor-pointer" onClick={() => window.location.href = "/abi"}>
                     <a>Abi ja Kontakt</a>
                     <svg class="ml-3" xmlns="http://www.w3.org/2000/svg" width="10" height="9" viewBox="0 0 10 9" fill="none">
                         <path d="M4.82053 8.34939L9.64106 -2.86102e-06H1.00136e-05L4.82053 8.34939Z" fill="white" />

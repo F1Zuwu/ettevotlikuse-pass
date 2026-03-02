@@ -32,6 +32,10 @@
     border-left: 6px solid #00E1FF;
 }
 
+.btn-border-green {
+    border-left: 6px solid #8ACE00;
+}
+
 .h-447 {
     height: 447px;
 }
