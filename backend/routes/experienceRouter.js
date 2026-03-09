@@ -19,11 +19,13 @@ class experienceRouter extends BaseRouter {
   getAll: typeof experienceController.getAllExperiences,
 });
     this.registerRoute("post", "/experience/add", experienceController.addExperience);
-    this.registerRoute("get", "/experience/", experienceController.getExperience);
-    this.registerRoute("put", "/experience/update", experienceController.updateExperience);
-    this.registerRoute("delete", "/experience/", experienceController.deleteExperience);
+    this.registerRoute("get", "/experience/:id", experienceController.getExperience);
+    this.registerRoute("put", "/experience/:id", experienceController.updateExperience);
+    this.registerRoute("delete", "/experience/:id", experienceController.deleteExperience);
    
     this.registerRoute("get", "/experiences/", experienceController.getAllExperiences);
+
+    this.registerRoute("get", "/:id/approve", experienceController.getAllExperiences);
 
 }
 }

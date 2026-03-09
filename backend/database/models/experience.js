@@ -32,6 +32,39 @@ module.exports = (sequelize, DataTypes) => {
         ),
         allowNull: false,
       },
+      approver_email: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      approver_feedback: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      approved_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
+      user_id: {
+        type: DataTypes.INTEGER,
+        references: { model: "user", key: "user_id" },
+        allowNull: true,
+      },
+      category_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "category",
+          key: "category_id",
+        },
+        onDelete: "CASCADE",
+      },
+      reflection_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "reflection",
+          key: "reflection_id",
+        },
+        onDelete: "CASCADE",
+      },
     },
     {
       tableName: "experience",
@@ -44,12 +77,6 @@ module.exports = (sequelize, DataTypes) => {
     Experience.belongsTo(models.User, {
       foreignKey: "user_id",
       as: "user",
-    });
-
-    Experience.belongsTo(models.Approver, {
-      foreignKey: "approver_id",
-      as: "approver",
-      allowNull: true,
     });
 
     Experience.hasMany(models.Proof, {

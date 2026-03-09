@@ -34,6 +34,35 @@ const adminController = {
       },
     });
   },
+  async getAllExperiencesForAdmin(req, res) {
+    const stats = await models.Experience.findAll({
+  attributes: ["category_id", [sequelize.fn("COUNT", sequelize.col("experience_id")), "count"]],
+  group: ["category_id"]
+});
+const stats2 = await models.Experience.findAll({
+  attributes: ["user_id", [sequelize.fn("COUNT", sequelize.col("experience_id")), "count"]],
+  group: ["user_id"]
+});
+
+  if (req.user.role !== "admin") {
+    return res.status(403).json({ success: false, message: "Access denied" });
+  }
+
+  const experiences = await models.Experience.findAll({
+    include: [
+      { model: models.User, as: "user" },
+      { model: models.Category, as: "category" },
+      { model: models.Reflection, as: "reflection" },
+      { model: models.Proof, as: "proofs" },
+    ],
+  });
+
+  return res.json({ success: true, experiences });
+  
+}
+
+
+
 };
 
 module.exports = adminController;

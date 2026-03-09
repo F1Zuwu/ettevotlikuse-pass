@@ -17,6 +17,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      experience_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: "experience",
+          key: "experience_id",
+        },
+        onDelete: "CASCADE",
+      },
     },
     {
       tableName: "proof",

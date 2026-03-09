@@ -22,12 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     },
   );
-  Approver.associate = (models) => {
-    Approver.hasMany(models.Experience, {
-      foreignKey: "approver_id",
-      as: "experiences",
-    });
-  };
+
 
   return Approver;
 };
