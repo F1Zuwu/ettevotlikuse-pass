@@ -10,11 +10,15 @@ const reflectionRouter = require("./routes/reflectionRouter");
 
 const app = express();
 
+const path = require("path");
+
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
 app.use(corsHandler)
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use("/api", userRouter);
 app.use("/api", adminRouter);

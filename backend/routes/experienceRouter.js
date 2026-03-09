@@ -1,3 +1,5 @@
+const upload = require("../middleware/upload");
+const { checkAuthenticated } = require("../middleware/auth");
 const experienceController = require("../controllers/experienceController");
 const BaseRouter = require("./BaseRouter");
 
@@ -18,14 +20,14 @@ class experienceRouter extends BaseRouter {
   delete: typeof experienceController.deleteExperience,
   getAll: typeof experienceController.getAllExperiences,
 });
-    this.registerRoute("post", "/experience/add", experienceController.addExperience);
+    this.registerRoute("post", "/experience/add", checkAuthenticated, upload.array("files", 5),  experienceController.addExperience);
     this.registerRoute("get", "/experience/:id", experienceController.getExperience);
-    this.registerRoute("put", "/experience/:id", experienceController.updateExperience);
-    this.registerRoute("delete", "/experience/:id", experienceController.deleteExperience);
+    this.registerRoute("put", "/experience/:id", checkAuthenticated, upload.array("files", 5), experienceController.updateExperience);
+    this.registerRoute("delete", "/experience/:id", checkAuthenticated, experienceController.deleteExperience);
    
-    this.registerRoute("get", "/experiences/", experienceController.getAllExperiences);
+    this.registerRoute("get", "/experiences/",checkAuthenticated, experienceController.getAllExperiences);
 
-    this.registerRoute("get", "/:id/approve", experienceController.getAllExperiences);
+    this.registerRoute("get", "/:id/approve",checkAuthenticated, experienceController.getAllExperiences);
 
 }
 }

@@ -15,7 +15,7 @@ class experienceController extends BaseController {
     this.getAllExperiences = this.getAllExperiences.bind(this);
   }
 
-  async addExperience(req, res) {
+async addExperience(req, res) {
   this.handleRequest(req, res, async () => {
     const {
       title,
@@ -25,9 +25,10 @@ class experienceController extends BaseController {
       status,
       category_id,
       reflection_id,
+      proofs: proofsFromBody,
     } = req.body;
 
-     const user_id = req.user.id;
+    const user_id = req.user.id;
 
     if (!title || !date || !description || !reflectionanswer) {
       return res.status(400).json({
@@ -43,8 +44,30 @@ class experienceController extends BaseController {
         error: "Invalid date format. Please use DD-MM-YYYY",
       });
     }
-
     const validDate = parsedDate.toDate();
+
+    const proofsFromFiles = (req.files || []).map((file) => ({
+      file_name: file.originalname,
+      proof_url: `/uploads/${file.filename}`,
+    }));
+
+    let urlProofs = [];
+    if (proofsFromBody) {
+      try {
+        const parsed = typeof proofsFromBody === "string" ? JSON.parse(proofsFromBody) : proofsFromBody;
+        const urlRegex = /^https?:\/\/[^\s]+$/;
+        parsed.forEach((p) => {
+          if (!p.proof_url || !urlRegex.test(p.proof_url)) {
+            throw new Error("Invalid URL in proofs");
+          }
+        });
+        urlProofs = parsed;
+      } catch (err) {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+    }
+
+    const allProofs = [...urlProofs, ...proofsFromFiles];
 
     try {
       const experience = await models.Experience.create(
@@ -57,16 +80,9 @@ class experienceController extends BaseController {
           category_id,
           reflection_id,
           user_id,
-          proofs: [
-            {
-              file_name: "test.pdf",
-              proof_url: "uploads/test.pdf",
-            },
-          ],
+          proofs: allProofs,
         },
-        {
-          include: [{ model: models.Proof, as: "proofs" }],
-        }
+        { include: [{ model: models.Proof, as: "proofs" }] }
       );
 
       return res.status(201).json({
@@ -104,44 +120,41 @@ class experienceController extends BaseController {
   }
 
   async getExperience(req, res) {
-  this.handleRequest(req, res, async () => {
-    const experience = await models.Experience.findByPk(req.params.id, {
-      include: [
-        {
-          model: models.Proof,
-          as: "proofs",
-        },
-        {
-          model: models.Category,
-          as: "category",
-        },
-      ],
-    });
-
-    if (!experience) {
-      return res.status(404).json({
-        success: false,
-        message: "Experience not found",
+    this.handleRequest(req, res, async () => {
+      const experience = await models.Experience.findByPk(req.params.id, {
+        include: [
+          {
+            model: models.Proof,
+            as: "proofs",
+          },
+          {
+            model: models.Category,
+            as: "category",
+          },
+        ],
       });
-    }
 
-    return res.status(200).json({
-      success: true,
-      experience,
+      if (!experience) {
+        return res.status(404).json({
+          success: false,
+          message: "Experience not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        experience,
+      });
     });
+  }
+
+  async updateExperience(req, res) {
+  const experience = await models.Experience.findByPk(req.params.id, {
+    include: [{ model: models.Proof, as: "proofs" }],
   });
-}
-
-
-
-
-async updateExperience(req, res) {
-  const experience = await models.Experience.findByPk(req.params.id);
 
   if (!experience)
-    return res
-      .status(404)
-      .json({ success: false, message: "Experience not found" });
+    return res.status(404).json({ success: false, message: "Experience not found" });
 
   const {
     title,
@@ -151,6 +164,7 @@ async updateExperience(req, res) {
     status,
     category_id,
     reflection_id,
+    proofs: proofsFromBody,
   } = req.body;
 
   const updates = {
@@ -175,6 +189,34 @@ async updateExperience(req, res) {
 
   await experience.update(updates);
 
+  // Handle new proofs
+  const proofsFromFiles = (req.files || []).map((file) => ({
+    file_name: file.originalname,
+    proof_url: `/uploads/${file.filename}`,
+    experience_id: experience.experience_id,
+  }));
+
+  let urlProofs = [];
+  if (proofsFromBody) {
+    try {
+      const parsed = typeof proofsFromBody === "string" ? JSON.parse(proofsFromBody) : proofsFromBody;
+      const urlRegex = /^https?:\/\/[^\s]+$/;
+      parsed.forEach((p) => {
+        if (!p.proof_url || !urlRegex.test(p.proof_url)) throw new Error("Invalid URL in proofs");
+        p.experience_id = experience.experience_id;
+      });
+      urlProofs = parsed;
+    } catch (err) {
+      return res.status(400).json({ success: false, error: err.message });
+    }
+  }
+
+  const allNewProofs = [...urlProofs, ...proofsFromFiles];
+
+  if (allNewProofs.length > 0) {
+    await models.Proof.bulkCreate(allNewProofs);
+  }
+
   const updatedExperience = await models.Experience.findByPk(req.params.id, {
     include: [
       { model: models.Proof, as: "proofs" },
@@ -183,11 +225,12 @@ async updateExperience(req, res) {
     ],
   });
 
-  return res
-    .status(200)
-    .json({ success: true, message: "Experience updated", experience: updatedExperience });
+  return res.status(200).json({
+    success: true,
+    message: "Experience updated",
+    experience: updatedExperience,
+  });
 }
-
   async deleteExperience(req, res) {
     const experience = await models.Experience.findByPk(req.params.id);
 
