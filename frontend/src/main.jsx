@@ -26,6 +26,8 @@ root.render(
         <Route path='/info' element={<Info />} />
         <Route path='/funktsioonid' element={<Funktsioonid />} />
         <Route path='/abi' element={<Abi />} />
+
+        
       </Routes>
     </BrowserRouter>
   </GoogleOAuthProvider>
