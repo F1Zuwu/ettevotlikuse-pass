@@ -12,6 +12,8 @@ import Login from './container/Frontpage/Login';
 import Info from './container/Frontpage/Info';
 import Funktsioonid from './container/Frontpage/Funktsioonid';
 import Abi from './container/Frontpage/Abi';
+import MinuPass from './container/Opilane/MinuPass';
+import MinuTegevused from './container/Opilane/MinuTegevused';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -27,7 +29,8 @@ root.render(
         <Route path='/funktsioonid' element={<Funktsioonid />} />
         <Route path='/abi' element={<Abi />} />
 
-        
+        <Route path='/mina/pass' element={<MinuPass />} />
+        <Route path='/mina/tegevused' element={<MinuTegevused />} />
       </Routes>
     </BrowserRouter>
   </GoogleOAuthProvider>

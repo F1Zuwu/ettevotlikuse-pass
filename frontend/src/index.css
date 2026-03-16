@@ -32,6 +32,17 @@
     border-left: 6px solid #00E1FF;
 }
 
+.border-cyan {
+    border-right: 2px solid #00E1FF;
+    border-top: 2px solid #00E1FF;
+    border-bottom: 2px solid #00E1FF;
+}
+
+.border-cyan-t-b {
+    border-top: 2px solid #00E1FF;
+    border-bottom: 2px solid #00E1FF;
+}
+
 .btn-border-green {
     border-left: 6px solid #8ACE00;
 }
@@ -42,4 +53,12 @@
 
 .h-555 {
     height: 555px;
+}
+
+.h-560 {
+    height: 560px;
+}
+
+.h-323 {
+    height: 323px;
 }
