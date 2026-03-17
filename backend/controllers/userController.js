@@ -102,6 +102,8 @@ class userController extends BaseController {
             .json({ success: false, error: "Invalid credentials" });
         }
 
+        await user.update({ last_login: new Date() });
+
         const token = this.generateToken(user);
 
         return res.status(200).json({
@@ -116,6 +118,7 @@ class userController extends BaseController {
             birthday: user.birthday,
             picture: user.profileimg,
             role: user.role,
+            last_login: user.last_login,
           },
         });
       } catch (dbErr) {

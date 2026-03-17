@@ -44,8 +44,12 @@ module.exports = (sequelize, DataTypes) => {
       },
       promotional_content: {
         type: DataTypes.BOOLEAN,
-        
+        allowNull: true,
         defaultValue: false,
+      },
+      last_login: {
+        type: DataTypes.DATE,
+        allowNull: true,
       },
     },
     {

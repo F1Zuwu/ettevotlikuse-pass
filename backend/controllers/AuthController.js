@@ -59,12 +59,15 @@ class AuthController extends BaseController {
                     profileimg: picture,
                     password: null,
                     role: "user",
+                    last_login: new Date(),
                 });
             } else {
                 if (!user.googleId) {
                     user.googleId = sub;
-                    await user.save();
                 }
+
+                user.last_login = new Date();
+                await user.save();
             }
 
             // Generate JWT
@@ -86,6 +89,7 @@ class AuthController extends BaseController {
                     birthday: user.birthday,
                     picture: user.profileimg,
                     role: user.role,
+                    last_login: user.last_login,
                 },
             });
 
