@@ -7,6 +7,7 @@ const adminRouter = require("./routes/adminRouter");
 const experienceRouter = require("./routes/experienceRouter");
 const categoryRouter = require("./routes/categoryRouter");
 const reflectionRouter = require("./routes/reflectionRouter");
+const statisticsRouter = require("./routes/statisticsRouter");
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/api", adminRouter);
 app.use("/api", experienceRouter);
 app.use("/api", categoryRouter);
 app.use("/api", reflectionRouter);
+app.use("/api", statisticsRouter);
 
 
 app.listen(3005, () => {
