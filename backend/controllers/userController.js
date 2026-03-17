@@ -61,7 +61,8 @@ class userController extends BaseController {
             id: user.user_id,
             username: user.username,
             email: user.email,
-            promotional_content: user.promotional_content
+            promotional_content: user.promotional_content,
+            moto: user.moto
           },
         });
       } catch (dbErr) {
@@ -118,6 +119,7 @@ class userController extends BaseController {
             birthday: user.birthday,
             picture: user.profileimg,
             role: user.role,
+            moto: user.moto,
             last_login: user.last_login,
           },
         });
@@ -170,7 +172,7 @@ class userController extends BaseController {
 
   if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-  const { name, phone, birthday, profileimg, promotional_content, role } = req.body;
+  const { name, phone, birthday, profileimg, promotional_content, role, moto } = req.body;
 
   const updates = {
     name: name ?? user.name,
@@ -178,6 +180,7 @@ class userController extends BaseController {
     birthday: birthday ?? user.birthday,
     profileimg: profileimg ?? user.profileimg,
     promotional_content: promotional_content ?? user.promotional_content,
+    moto: moto ?? user.moto,
   };
 
     if (req.user.role === 'admin' && role) {

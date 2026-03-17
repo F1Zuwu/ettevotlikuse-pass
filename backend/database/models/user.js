@@ -47,6 +47,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: true,
         defaultValue: false,
       },
+      moto: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       last_login: {
         type: DataTypes.DATE,
         allowNull: true,
