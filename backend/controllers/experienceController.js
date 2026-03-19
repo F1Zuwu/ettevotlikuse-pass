@@ -268,6 +268,14 @@ async addExperience(req, res) {
             model: models.Proof,
             as: "proofs",
           },
+          {
+            model: models.Category,
+            as: "category",
+          },
+          {
+            model: models.Reflection,
+            as: "reflection",
+          },
         ],
       });
 
