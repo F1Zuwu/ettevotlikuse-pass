@@ -1,6 +1,7 @@
 const { models } = require("../database");
 const category = require("../database/models/category");
 const BaseController = require("./BaseController");
+const sendApprovalEmail = require("../mail/sendApprovalEmail").sendApprovalEmail;
 
 const moment = require("moment");
 
@@ -25,6 +26,7 @@ async addExperience(req, res) {
       status,
       category_id,
       reflection_id,
+      approver_email,
       proofs: proofsFromBody,
     } = req.body;
 
@@ -70,6 +72,8 @@ async addExperience(req, res) {
     const allProofs = [...urlProofs, ...proofsFromFiles];
 
     try {
+      const token = require("crypto").randomBytes(32).toString("hex");
+
       const experience = await models.Experience.create(
         {
           title,
@@ -81,9 +85,16 @@ async addExperience(req, res) {
           reflection_id,
           user_id,
           proofs: allProofs,
+          approver_email,
+          approval_token: token,
         },
         { include: [{ model: models.Proof, as: "proofs" }] }
       );
+       if (approver_email) {
+          const user = await models.User.findByPk(user_id);
+          const submittedBy = user ? user.name : "Unknown";
+          await sendApprovalEmail(approver_email, title, submittedBy, token);
+        }
 
       return res.status(201).json({
         success: true,
