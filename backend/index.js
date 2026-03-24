@@ -1,5 +1,7 @@
 const express = require("express");
 
+require("dotenv").config();
+
 const corsHandler = require('./middleware/cors');
 
 const userRouter = require("./routes/userRouter");

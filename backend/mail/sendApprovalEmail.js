@@ -1,6 +1,10 @@
-import nodemailer from "nodemailer";
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-export async function sendApprovalEmail(
+console.log("EMAIL:", process.env.TELIA_EMAIL);
+console.log("PASS:", process.env.TELIA_PASSWORD);
+
+ async function sendApprovalEmail(
   approverEmail,
   experienceName,
   submittedBy,
@@ -68,3 +72,5 @@ export async function sendApprovalEmail(
     `,
   });
 }
+
+module.exports = { sendApprovalEmail };

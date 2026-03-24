@@ -66,7 +66,9 @@ const Register = () => {
     return (
         <div class="h-screen flex">
             <div class="hidden w-1/2 h-screen bg-black text-white items-center justify-center md:flex flex-col relative">
+            <div className="cursor-pointer" onClick={() => window.location.href = "/"}>
                 <img class="absolute left-4 top-4 w-36" src={leen_logo_valge} alt="LEEN Logo" />
+                </div>
                 <img class="absolute right-0 top-0 " src={deco_register_0} alt="Deco Register 0" />
                 <img class="absolute left-0 bottom-0" src={deco_register_1} alt="Deco Register 1" />
                 <h1 class=" text-4xl">Tere tulemast tagasi!</h1>

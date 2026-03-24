@@ -4,6 +4,11 @@ const BaseController = require("./BaseController");
 const sendApprovalEmail = require("../mail/sendApprovalEmail").sendApprovalEmail;
 
 const moment = require("moment");
+const jwt = require("jsonwebtoken");
+
+require("dotenv").config();
+
+
 
 class experienceController extends BaseController {
   constructor() {
@@ -14,6 +19,10 @@ class experienceController extends BaseController {
     this.deleteExperience = this.deleteExperience.bind(this);
 
     this.getAllExperiences = this.getAllExperiences.bind(this);
+
+    this.getApproveExperience = this.getApproveExperience.bind(this);
+
+    this.approveExperience = this.approveExperience.bind(this);
   }
 
 async addExperience(req, res) {
@@ -72,7 +81,6 @@ async addExperience(req, res) {
     const allProofs = [...urlProofs, ...proofsFromFiles];
 
     try {
-      const token = require("crypto").randomBytes(32).toString("hex");
 
       const experience = await models.Experience.create(
         {
@@ -86,10 +94,25 @@ async addExperience(req, res) {
           user_id,
           proofs: allProofs,
           approver_email,
-          approval_token: token,
+          approval_token: null,
+          approval_token_expires_at: null,
         },
         { include: [{ model: models.Proof, as: "proofs" }] }
       );
+
+
+const token = jwt.sign({id: experience.dataValues.experience_id}, process.env.JWT_SECRET, {expiresIn: "24h"})
+
+
+await experience.update({
+      approval_token: token,
+    });
+
+console.log("signed jwt", experience.dataValues.approval_token)
+
+const decoded = jwt.verify(experience.dataValues.approval_token, process.env.JWT_SECRET)
+console.log("decoded jwt", decoded.id)
+
        if (approver_email) {
           const user = await models.User.findByPk(user_id);
           const submittedBy = user ? user.name : "Unknown";
@@ -112,20 +135,50 @@ async addExperience(req, res) {
   });
 }
 
+async getApproveExperience(req, res){
+  const exp_id = jwt.verify(req.query.token, process.env.JWT_SECRET)
+  const experience = await models.Experience.findByPk(exp_id.id, {
+        include: [
+          {
+            model: models.Proof,
+            as: "proofs",
+          },
+          {
+            model: models.Category,
+            as: "category",
+          },
+        ],
+      });
+
+  res.json(experience)
+
+}
+
+
   async approveExperience(req, res) {
     const { email, feedback, status } = req.body;
+    const token = req.query.token || req.body.token;
 
-    const experience = await models.Experience.findByPk(req.params.id);
+    const experience = await models.Experience.findOne({
+    where: { approval_token: token },
+  });
+    
 
     if (!experience) {
-      return res.status(404).json({ success: false });
+      return res.status(404).json({ success: false, message: "Invalid token" });
     }
+
+    if (experience.approval_token_expires_at < new Date()) {
+    return res.status(400).json({ success: false, message: "Token expired" });
+  }
 
     await experience.update({
       status: status,
       approver_email: email,
       approver_feedback: feedback,
       approved_at: new Date(),
+      approval_token: null,
+      approval_token_expires_at: null,
     });
     return res.json({ success: true });
   }

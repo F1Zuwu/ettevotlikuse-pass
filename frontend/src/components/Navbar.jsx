@@ -23,7 +23,9 @@ const Navbar = () => {
     return (
         <div class="bg-black text-white">
             <div class="h-24 flex items-center px-10">
+                 <div className="cursor-pointer" onClick={() => window.location.href = "/"}>
                 <h1 class="text-3xl">Ettevõtlikkuse Pass</h1>
+                </div>
                 <div class="absolute right-10 flex items-center  ">
                     <img src={langIco} class="w-5 h-5 mr-2" alt="Language Icon"></img>
                     <button>Eesti keel</button>
