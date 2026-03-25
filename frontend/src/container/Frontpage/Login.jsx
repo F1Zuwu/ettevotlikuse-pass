@@ -31,7 +31,7 @@ const Login = () => {
                 const userInfo = await userInfoResponse.json();
 
                 // Send to backend
-                const response = await fetch("http://localhost:3005/api/google", {
+                const response = await fetch(`${API_BASE_URL}/api/google`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -72,7 +72,7 @@ const Login = () => {
         const passwordValue = document.getElementById("parool").value;
 
         try {
-            const response = await fetch(API_BASE_URL +"/api/user/login", {
+            const response = await fetch(`${API_BASE_URL}/api/user/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
