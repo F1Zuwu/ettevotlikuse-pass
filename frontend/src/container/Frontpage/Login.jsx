@@ -103,7 +103,9 @@ const Login = () => {
     return (
         <div className="h-screen flex">
             <div className="w-1/2 h-screen bg-black text-white items-center justify-center flex flex-col relative">
+                <div className="cursor-pointer" onClick={() => window.location.href = "/"}>
                 <img className="absolute left-4 top-4 w-36" src={leen_logo_valge} alt="LEEN Logo" />
+                </div>
                 <img className="absolute right-0 top-0" src={deco_register_0} alt="Deco Register 0" />
                 <img className="absolute left-0 bottom-0" src={deco_register_1} alt="Deco Register 1" />
                 <h1 className="text-4xl">Tere tulemast!</h1>

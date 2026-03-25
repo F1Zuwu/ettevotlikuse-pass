@@ -27,8 +27,8 @@ class experienceRouter extends BaseRouter {
    
     this.registerRoute("get", "/experiences/",checkAuthenticated, experienceController.getAllExperiences);
 
-    this.registerRoute("get", "/:id/approve",checkAuthenticated, experienceController.getAllExperiences);
-
+    this.registerRoute("get", "/approve", experienceController.getApproveExperience);
+    this.registerRoute("post", "/approve", experienceController.approveExperience);
 }
 }
 

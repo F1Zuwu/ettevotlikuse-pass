@@ -32,6 +32,14 @@ module.exports = (sequelize, DataTypes) => {
         ),
         allowNull: false,
       },
+      approval_token: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
+      approval_token_expires_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
       approver_email: {
         type: DataTypes.STRING(100),
         allowNull: true,
