@@ -1,4 +1,6 @@
 const express = require("express");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger");
 
 require("dotenv").config();
 
@@ -22,6 +24,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(corsHandler)
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.get("/api-docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerDocument);
+});
 
 app.use("/api", userRouter);
 app.use("/api", adminRouter);
