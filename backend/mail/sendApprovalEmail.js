@@ -28,7 +28,7 @@ console.log("PASS:", process.env.TELIA_PASSWORD);
         tls: { ciphers: "SSLv3" },
       });
 
-  const link = `http://localhost:3005/api/approve?token=${token}`;
+  const link = `http://localhost:5173/approve?token=${token}`;
 
   await transporter.sendMail({
     from: `Approval System <${process.env.TELIA_EMAIL}>`,

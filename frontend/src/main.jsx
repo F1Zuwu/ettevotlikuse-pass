@@ -36,7 +36,7 @@ root.render(
         <Route path='/mina/tegevused' element={<MinuTegevused />} />
         <Route path='/mina/tegevused/lisa' element={<LisaTegevus />} />
         <Route path='/mina/tegevused/:id' element={<VaataRohkem />} />
-        <Route path='/tegevused/:id/:token' element={<Kinnita />} />
+        <Route path='/approve' element={<Kinnita />} />
       </Routes>
     </BrowserRouter>
   </GoogleOAuthProvider>
