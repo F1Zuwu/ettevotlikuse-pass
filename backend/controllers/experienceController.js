@@ -5,8 +5,12 @@ const sendApprovalEmail = require("../mail/sendApprovalEmail").sendApprovalEmail
 
 const moment = require("moment");
 const jwt = require("jsonwebtoken");
+const { Op } = require("sequelize");
 
 require("dotenv").config();
+
+const normalizeStatus = (value) =>
+  (value || "").toString().trim().toLowerCase();
 
 
 
@@ -79,6 +83,7 @@ async addExperience(req, res) {
     }
 
     const allProofs = [...urlProofs, ...proofsFromFiles];
+    const normalizedStatus = normalizeStatus(status || "ootel");
 
     try {
 
@@ -88,7 +93,7 @@ async addExperience(req, res) {
           date: validDate,
           description,
           reflectionanswer,
-          status: status || "ootel",
+          status: normalizedStatus,
           category_id,
           reflection_id,
           user_id,
@@ -106,6 +111,7 @@ const token = jwt.sign({id: experience.dataValues.experience_id}, process.env.JW
 
 await experience.update({
       approval_token: token,
+  approval_token_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
 
 console.log("signed jwt", experience.dataValues.approval_token)
@@ -113,7 +119,7 @@ console.log("signed jwt", experience.dataValues.approval_token)
 const decoded = jwt.verify(experience.dataValues.approval_token, process.env.JWT_SECRET)
 console.log("decoded jwt", decoded.id)
 
-       if (approver_email) {
+       if (approver_email && normalizedStatus !== "mustand") {
           const user = await models.User.findByPk(user_id);
           const submittedBy = user ? user.name : "Unknown";
           await sendApprovalEmail(approver_email, title, submittedBy, token);
@@ -159,6 +165,16 @@ async getApproveExperience(req, res){
     const { email, feedback, status } = req.body;
     const token = req.query.token || req.body.token;
 
+    if (!token) {
+      return res.status(400).json({ success: false, message: "Token is required" });
+    }
+
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(400).json({ success: false, message: "Token expired or invalid" });
+    }
+
     const experience = await models.Experience.findOne({
     where: { approval_token: token },
   });
@@ -168,12 +184,14 @@ async getApproveExperience(req, res){
       return res.status(404).json({ success: false, message: "Invalid token" });
     }
 
-    if (experience.approval_token_expires_at < new Date()) {
+    if (experience.approval_token_expires_at && new Date(experience.approval_token_expires_at) < new Date()) {
     return res.status(400).json({ success: false, message: "Token expired" });
   }
 
+    const approvedStatus = normalizeStatus(status || "kinnitatud");
+
     await experience.update({
-      status: status,
+      status: approvedStatus,
       approver_email: email,
       approver_feedback: feedback,
       approved_at: new Date(),
@@ -228,16 +246,29 @@ async getApproveExperience(req, res){
     status,
     category_id,
     reflection_id,
+    approver_email,
     proofs: proofsFromBody,
   } = req.body;
+
+  const previousStatus = normalizeStatus(experience.status);
+  const previousApproverEmail = experience.approver_email || "";
+  const nextStatus = normalizeStatus(status ?? experience.status ?? "");
+
+  if (previousStatus === "kinnitatud") {
+    return res.status(403).json({
+      success: false,
+      message: "Kinnitatud tegevust ei saa muuta.",
+    });
+  }
 
   const updates = {
     title: title ?? experience.title,
     description: description ?? experience.description,
     reflectionanswer: reflectionanswer ?? experience.reflectionanswer,
-    status: status ?? experience.status,
+    status: nextStatus,
     category_id: category_id ?? experience.category_id,
     reflection_id: reflection_id ?? experience.reflection_id,
+    approver_email: approver_email ?? experience.approver_email,
   };
 
   if (date) {
@@ -261,15 +292,54 @@ async getApproveExperience(req, res){
   }));
 
   let urlProofs = [];
-  if (proofsFromBody) {
+  const proofsProvided = typeof proofsFromBody !== "undefined";
+  if (proofsProvided) {
     try {
       const parsed = typeof proofsFromBody === "string" ? JSON.parse(proofsFromBody) : proofsFromBody;
       const urlRegex = /^https?:\/\/[^\s]+$/;
-      parsed.forEach((p) => {
-        if (!p.proof_url || !urlRegex.test(p.proof_url)) throw new Error("Invalid URL in proofs");
-        p.experience_id = experience.experience_id;
+      const existingUrlProofs = (experience.proofs || []).filter((proof) =>
+        urlRegex.test((proof.proof_url || "").trim()),
+      );
+      const existingProofUrls = new Set(existingUrlProofs.map((proof) => (proof.proof_url || "").trim()));
+      const incomingUniqueUrls = new Set();
+
+      (Array.isArray(parsed) ? parsed : []).forEach((p) => {
+        const proofUrl = (p?.proof_url || "").trim();
+        if (!proofUrl || !urlRegex.test(proofUrl)) {
+          throw new Error("Invalid URL in proofs");
+        }
+
+        // Skip duplicates inside current payload.
+        if (incomingUniqueUrls.has(proofUrl)) {
+          return;
+        }
+
+        incomingUniqueUrls.add(proofUrl);
       });
-      urlProofs = parsed;
+
+      // Remove URL proofs that user deleted in edit form.
+      const proofIdsToDelete = existingUrlProofs
+        .filter((proof) => !incomingUniqueUrls.has((proof.proof_url || "").trim()))
+        .map((proof) => proof.proof_id);
+
+      if (proofIdsToDelete.length > 0) {
+        await models.Proof.destroy({
+          where: {
+            proof_id: { [Op.in]: proofIdsToDelete },
+            experience_id: experience.experience_id,
+          },
+        });
+      }
+
+      // Add new URL proofs not already attached.
+      incomingUniqueUrls.forEach((proofUrl) => {
+        if (!existingProofUrls.has(proofUrl)) {
+          urlProofs.push({
+            proof_url: proofUrl,
+            experience_id: experience.experience_id,
+          });
+        }
+      });
     } catch (err) {
       return res.status(400).json({ success: false, error: err.message });
     }
@@ -279,6 +349,25 @@ async getApproveExperience(req, res){
 
   if (allNewProofs.length > 0) {
     await models.Proof.bulkCreate(allNewProofs);
+  }
+
+  const nextApproverEmail = updates.approver_email || "";
+  const movedOutOfDraft = previousStatus === "mustand" && nextStatus !== "mustand";
+  const approverChanged = nextApproverEmail && nextApproverEmail !== previousApproverEmail;
+
+  if (nextApproverEmail && nextStatus !== "mustand" && (movedOutOfDraft || approverChanged)) {
+    let token = experience.approval_token;
+    if (!token) {
+      token = jwt.sign({ id: experience.experience_id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+      await experience.update({
+        approval_token: token,
+        approval_token_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      });
+    }
+
+    const user = await models.User.findByPk(experience.user_id);
+    const submittedBy = user ? user.name : "Unknown";
+    await sendApprovalEmail(nextApproverEmail, updates.title, submittedBy, token);
   }
 
   const updatedExperience = await models.Experience.findByPk(req.params.id, {

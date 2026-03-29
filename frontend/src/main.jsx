@@ -16,6 +16,7 @@ import MinuPass from './container/Opilane/MinuPass';
 import MinuTegevused from './container/Opilane/MinuTegevused';
 import LisaTegevus from './container/Opilane/LisaTegevus';
 import Kinnita from './container/Opilane/Kinnita';
+import VaataRohkem from './container/Opilane/VaataRohkem';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -34,6 +35,7 @@ root.render(
         <Route path='/mina/pass' element={<MinuPass />} />
         <Route path='/mina/tegevused' element={<MinuTegevused />} />
         <Route path='/mina/tegevused/lisa' element={<LisaTegevus />} />
+        <Route path='/mina/tegevused/:id' element={<VaataRohkem />} />
         <Route path='/tegevused/:id/:token' element={<Kinnita />} />
       </Routes>
     </BrowserRouter>
