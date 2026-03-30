@@ -57,7 +57,7 @@ const Navbar = () => {
     }, []);
 
     return (
-        <div className="bg-black text-white">
+        <div className="bg-black text-white select-none overflow-hidden">
             <div className="h-24 flex items-center px-10">
                 <div className="cursor-pointer" onClick={() => navigate("/")}>
                 <h1 className="text-3xl">Ettevõtlikkuse Pass</h1>
@@ -79,7 +79,7 @@ const Navbar = () => {
                     <a>Ettevõtlikkuse Pass</a>
                 </div>
                 {showAuthenticatedUi && (
-                    <div className={navItemClass(location.pathname.startsWith("/mina"))} onClick={() => navigate("/mina/pass")}>
+                    <div className={navItemClass(location.pathname === "/mina/pass" || location.pathname.startsWith("/mina/pass/"))} onClick={() => navigate("/mina/pass")}>
                         <a>Minu pass</a>
                     </div>
                 )}
