@@ -9,7 +9,7 @@ const checkAuthenticated = (req, res, next) => {
     return res.status(401).json({ message: 'You are not logged in', success: false });
   }
   
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, user) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       return res.status(401).json({ message: 'You are not logged in', success: false });
     }
