@@ -38,6 +38,19 @@ app.use("/api", categoryRouter);
 app.use("/api", reflectionRouter);
 app.use("/api", statisticsRouter);
 
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  return res.status(500).json({
+    success: false,
+    message: "Internal Server Error.",
+  });
+});
+
 
 app.listen(3005, () => {
   console.log("👍 | http://localhost:3005");

@@ -12,29 +12,7 @@ import {
   updateExperience,
 } from "../../API";
 import CustomSelect from "../../components/CustomSelect";
-
-const ActionButton = ({
-  label,
-  accent = "bg-main-pink",
-  onClick,
-  disabled = false,
-  type = "button",
-}) => {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={`rounded-full p-px ${accent} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-    >
-      <span className={`block ${accent} rounded-full p-px pl-2`}>
-        <span className="block rounded-full bg-black text-white text-[30px] leading-none px-6 py-2.25">
-          {label}
-        </span>
-      </span>
-    </button>
-  );
-};
+import ActionButton from "../../components/ActionButton";
 
 const LisaTegevus = () => {
   const navigate = useNavigate();
@@ -548,6 +526,13 @@ const LisaTegevus = () => {
               <div className="mt-12 flex flex-wrap items-center justify-between gap-4">
                 {isEditMode ? (
                   <div className="flex flex-wrap items-center gap-4">
+                    <ActionButton
+                      label="Tagasi"
+                      accent="bg-main-green"
+                      onClick={() => navigate(`/mina/tegevused/${editId}`)}
+                      disabled={loading}
+                      type="button"
+                    />
                     <ActionButton
                       label="Salvesta ja saada"
                       accent="bg-main-pink"

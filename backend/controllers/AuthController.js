@@ -66,6 +66,10 @@ class AuthController extends BaseController {
                     user.googleId = sub;
                 }
 
+                if (picture && (!user.profileimg || user.googleId === sub)) {
+                    user.profileimg = picture;
+                }
+
                 user.last_login = new Date();
                 await user.save();
             }

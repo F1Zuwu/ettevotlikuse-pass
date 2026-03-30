@@ -22,7 +22,7 @@ const Footer = () => {
                     </div>
                 </div>
             </div>
-            <div class="text-black flex justify-end items-center">
+            <div class="bg-white text-black flex justify-end items-center">
                 <div class="mr-4">
                     <h1 class="text-right">© 2026 Ettevõtlikkuse pass</h1>
                     <h1 class="text-right">Loodud koostöös Haridus- ja Noorteameti ning Ettevõtliku Kooli võrgustikuga.</h1>

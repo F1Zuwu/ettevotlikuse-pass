@@ -1,9 +1,6 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-console.log("EMAIL:", process.env.TELIA_EMAIL);
-console.log("PASS:", process.env.TELIA_PASSWORD);
-
  async function sendApprovalEmail(
   approverEmail,
   experienceName,

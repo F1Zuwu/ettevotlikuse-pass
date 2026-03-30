@@ -3,6 +3,7 @@ const AuthController = require("../controllers/AuthController");
 const BaseRouter = require("./BaseRouter");
 const { checkAuthenticated } = require("../middleware/auth");
 const isAdmin = require("../middleware/isAdmin");
+const upload = require("../middleware/upload");
 
 class userRouter extends BaseRouter {
   constructor() {
@@ -17,7 +18,13 @@ class userRouter extends BaseRouter {
     this.registerRoute('get', '/users', checkAuthenticated, isAdmin, userController.getUsers);
 
     this.registerRoute('get', '/user/profile', checkAuthenticated, userController.getProfile);
-    this.registerRoute('put', '/user/profile', checkAuthenticated, userController.updateProfile);
+    this.registerRoute(
+      'put',
+      '/user/profile',
+      checkAuthenticated,
+      upload.single("profileImage"),
+      userController.updateProfile,
+    );
 
     this.registerRoute('post', '/google', AuthController.googleAuth);
 }

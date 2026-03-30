@@ -12,8 +12,20 @@
     background-color: #FF00FF;
 }
 
+.border-main-pink {
+    border-color: #FF00FF;
+}
+
 .bg-main-cyan {
     background-color: #00E1FF;
+}
+
+.border-main-cyan {
+    border-color: #00E1FF;
+}
+
+.text-main-cyan {
+    color: #00E1FF;
 }
 
 .bg-main-green {
@@ -22,6 +34,14 @@
 
 .bg-main-yellow {
     background-color: #FFFF00;
+}
+
+.text-main-yellow {
+    color: #FFFF00;
+}
+
+.hover-main-yellow:hover {
+    color: #FFFF00;
 }
 
 .form-bg {

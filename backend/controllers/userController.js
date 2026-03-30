@@ -4,6 +4,26 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const maxProfileImageUrlLength = 255;
+const maxNameLength = 120;
+const maxEmailLength = 100;
+const maxPhoneLength = 30;
+const maxMotoLength = 255;
+
+const isValidDateOnly = (value) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+};
 
 class userController extends BaseController {
   constructor() {
@@ -168,29 +188,187 @@ class userController extends BaseController {
 }
 
   async updateProfile(req, res) {
-  const user = await models.User.findByPk(req.user.id);
+    this.handleRequest(req, res, async () => {
+      req.body = req.body || {};
 
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+      const user = await models.User.findByPk(req.user.id);
 
-  const { name, phone, birthday, profileimg, promotional_content, role, moto } = req.body;
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
 
-  const updates = {
-    name: name ?? user.name,
-    phone: phone ?? user.phone,
-    birthday: birthday ?? user.birthday,
-    profileimg: profileimg ?? user.profileimg,
-    promotional_content: promotional_content ?? user.promotional_content,
-    moto: moto ?? user.moto,
-  };
+      const {
+        name,
+        email,
+        phone,
+        birthday,
+        profileimg,
+        promotional_content,
+        role,
+        moto,
+        currentPassword,
+        newPassword,
+      } = req.body;
 
-    if (req.user.role === 'admin' && role) {
-    updates.role = role;
+      const hasUploadedProfileImage = Boolean(req.file);
+      const trimmedName = typeof name === "string" ? name.trim() : name;
+      const trimmedPhone = typeof phone === "string" ? phone.trim() : phone;
+      const trimmedMoto = typeof moto === "string" ? moto.trim() : moto;
+      const rawBirthday = typeof birthday === "string" ? birthday.trim() : birthday;
+      let normalizedBirthday = user.birthday;
+
+      if (typeof rawBirthday !== "undefined") {
+        if (rawBirthday === "" || rawBirthday === null) {
+          normalizedBirthday = null;
+        } else if (typeof rawBirthday === "string") {
+          if (!isValidDateOnly(rawBirthday)) {
+            return res.status(400).json({
+              success: false,
+              message: "Sunnipaev peab olema formaadis YYYY-MM-DD.",
+            });
+          }
+
+          normalizedBirthday = rawBirthday;
+        }
+      }
+
+      if (typeof trimmedName === "string" && trimmedName.length > maxNameLength) {
+        return res.status(400).json({
+          success: false,
+          message: "Nimi on liiga pikk.",
+        });
+      }
+
+      if (typeof trimmedPhone === "string" && trimmedPhone.length > maxPhoneLength) {
+        return res.status(400).json({
+          success: false,
+          message: "Telefoninumber on liiga pikk.",
+        });
+      }
+
+      if (typeof trimmedMoto === "string" && trimmedMoto.length > maxMotoLength) {
+        return res.status(400).json({
+          success: false,
+          message: "Moto on liiga pikk.",
+        });
+      }
+
+      if (typeof profileimg === "string") {
+        const trimmedProfileImg = profileimg.trim();
+
+        if (trimmedProfileImg.startsWith("data:")) {
+          return res.status(400).json({
+            success: false,
+            message: "Base64 pildi salvestamine ei ole toetatud. Kasuta faili üleslaadimist või URL-i.",
+          });
+        }
+
+        if (trimmedProfileImg.length > maxProfileImageUrlLength) {
+          return res.status(400).json({
+            success: false,
+            message: "Profiilipildi URL on liiga pikk.",
+          });
+        }
+      }
+
+      if (typeof email === "string" && email.trim()) {
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (!emailRegex.test(normalizedEmail)) {
+          return res
+            .status(400)
+            .json({ success: false, message: "Invalid email format" });
+        }
+
+        if (normalizedEmail.length > maxEmailLength) {
+          return res
+            .status(400)
+            .json({ success: false, message: "E-mail on liiga pikk." });
+        }
+
+        const existingUserWithEmail = await models.User.findOne({
+          where: { email: normalizedEmail },
+        });
+
+        if (
+          existingUserWithEmail &&
+          existingUserWithEmail.user_id !== user.user_id
+        ) {
+          return res
+            .status(400)
+            .json({ success: false, message: "Email is already in use" });
+        }
+      }
+
+      if (newPassword) {
+        if (String(newPassword).length < 8) {
+          return res.status(400).json({
+            success: false,
+            message: "New password must be at least 8 characters long",
+          });
+        }
+
+        if (user.password) {
+          if (!currentPassword) {
+            return res.status(400).json({
+              success: false,
+              message: "Current password is required",
+            });
+          }
+
+          const isCurrentPasswordValid = await bcrypt.compare(
+            currentPassword,
+            user.password,
+          );
+
+          if (!isCurrentPasswordValid) {
+            return res.status(400).json({
+              success: false,
+              message: "Current password is incorrect",
+            });
+          }
+        }
+      }
+
+      const updates = {
+        name: trimmedName ?? user.name,
+        email:
+          typeof email === "string" && email.trim()
+            ? email.trim().toLowerCase()
+            : user.email,
+        phone: trimmedPhone ?? user.phone,
+        birthday: normalizedBirthday,
+        profileimg: profileimg ?? user.profileimg,
+        promotional_content:
+          typeof promotional_content === "string"
+            ? promotional_content === "true"
+            : promotional_content ?? user.promotional_content,
+        moto: trimmedMoto ?? user.moto,
+      };
+
+      if (hasUploadedProfileImage) {
+        updates.profileimg = `/uploads/${req.file.filename}`;
+      } else if (typeof profileimg !== "undefined") {
+        updates.profileimg = typeof profileimg === "string" ? profileimg.trim() : profileimg;
+      }
+
+      if (newPassword) {
+        updates.password = await bcrypt.hash(newPassword, 10);
+      }
+
+      if (req.user.role === "admin" && role) {
+        updates.role = role;
+      }
+
+      await user.update(updates);
+
+      return res
+        .status(200)
+        .json({ success: true, message: "Profile updated", user });
+    });
   }
-
-  await user.update(updates);
-
-  return res.status(200).json({ success: true, message: 'Profile updated', user });
-}
 }
 
 module.exports = new userController();

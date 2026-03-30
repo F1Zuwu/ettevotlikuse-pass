@@ -3,46 +3,24 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { API_BASE_URL, deleteExperience, getExperience } from "../../API";
+import ActionButton from "../../components/ActionButton";
 
+  const formatDate = (dateString) => {
+    if (!dateString) {
+      return "-";
+    }
 
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return dateString;
+    }
 
-const ActionButton = ({
-  label,
-  accent = "bg-main-pink",
-  onClick,
-  disabled = false,
-  type = "button",
-}) => {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={`rounded-full p-px ${accent} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
-    >
-      <span className={`block ${accent} rounded-full p-px pl-2`}>
-        <span className="block rounded-full bg-black text-white text-[30px] leading-none px-6 py-2.25">
-          {label}
-        </span>
-      </span>
-    </button>
-  );
-};
-
-
-const formatDateRange = (dateString) => {
-  if (!dateString) {
-    return "-";
-  }
-
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) {
-    return dateString;
-  }
-
-  const formatted = date.toLocaleDateString("et-EE");
-  return `${formatted} - ${formatted}`;
-};
+    return date.toLocaleDateString("et-EE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
 
 const resolveProofUrl = (proofUrl) => {
   if (!proofUrl) {
@@ -162,7 +140,7 @@ const VaataRohkem = () => {
             {experience.title || "Tegevus"}
           </h1>
           <p className="text-black text-[28px] mt-2">
-            {formatDateRange(experience.date)}
+            {formatDate(experience.date)}
           </p>
         </section>
 

@@ -1,6 +1,14 @@
 //https://api.epass.raimokivi.ee
 export const API_BASE_URL = "http://localhost:3005";
 
+const stripHtml = (value = "") =>
+  value
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
 const parseResponseBody = async (response) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -9,7 +17,63 @@ const parseResponseBody = async (response) => {
   }
 
   const text = await response.text();
-  return { message: text };
+  const looksLikeHtml = /<html|<body|<pre/i.test(text);
+
+  if (looksLikeHtml) {
+    const cleaned = stripHtml(text);
+    return {
+      message: cleaned || "Serveri vastus ei olnud loetav.",
+    };
+  }
+
+  return { message: text || "Serveri vastus ei olnud loetav." };
+};
+
+export const fetchUserProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const payload = await parseResponseBody(response);
+
+    if (!response.ok || !payload?.success) {
+      throw new Error(payload?.message || "Profiili laadimine ebaõnnestus");
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Viga profiili laadimisel:", error);
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (formData) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    const payload = await parseResponseBody(response);
+
+    if (!response.ok || !payload?.success) {
+      throw new Error(payload?.message || "Profiili uuendamine ebaõnnestus");
+    }
+
+    return payload;
+  } catch (error) {
+    console.error("Viga profiili uuendamisel:", error);
+    throw error;
+  }
 };
 
 // Kategooria rakendused
