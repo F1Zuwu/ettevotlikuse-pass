@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:e2e": "node ./e2e/login-register.selenium.test.mjs",
+    "test:e2e:local": "concurrently -k -s command-2 \"npm --prefix ../backend run dev\" \"npm run dev -- --host 127.0.0.1 --port 5173 --strictPort\" \"wait-on tcp:3005 tcp:5173 && npm run test:e2e\""
   },
   "dependencies": {
     "@react-oauth/google": "^0.13.4",
@@ -22,10 +24,14 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react-swc": "^4.2.2",
+    "chromedriver": "^146.0.6",
+    "concurrently": "^9.2.1",
     "eslint": "^10.0.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
-    "vite": "^7.2.4"
+    "selenium-webdriver": "^4.41.0",
+    "vite": "^7.2.4",
+    "wait-on": "^9.0.4"
   }
 }
