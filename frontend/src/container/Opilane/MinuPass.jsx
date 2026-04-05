@@ -5,6 +5,8 @@ import copyIco from "../../assets/icons/copy.png";
 import { API_BASE_URL } from "../../API";
 import { useEffect, useMemo, useState } from "react";
 import CustomSelect from "../../components/CustomSelect";
+import downlaodIco from "../../assets/icons/download.png";
+import shareIco from "../../assets/icons/share.png";
 
 const MinuPass = () => {
   const [user, setUser] = useState(null);
@@ -294,15 +296,22 @@ const MinuPass = () => {
     <div className="">
       <Navbar></Navbar>
       <div className="h-560 w-full flex items-center">
-        <div className="w-1/2"></div>
+        <div className="w-1/2 flex justify-center items-center">
+          <div class="relative w-96 h-96 translate-y-12">
+            <img src={user?.profileimg} alt="Profiilipilt" className="absolute z-20 w-64 h-64 rounded-full" />
+            <div class="bg-main-pink w-36 h-36 rounded-full absolute -left-12 bottom-36">{ }</div>
+            <div class="bg-main-green w-36 h-36 rounded-full absolute left-0 bottom-16">{ }</div>
+            
+          </div>
+        </div>
         <div className="w-1/2">
           <div className="bg-black text-white w-48 flex items-center justify-center rounded-full px-3 py-2 btn-border-cyan">
             <h1 className="text-4xl">Minu pass</h1>
           </div>
           <div className="ml-8 mt-4">
+            <h1>{console.log(user)}</h1>
             <h3>Nimi: {user?.name}</h3>
-            <h3>{formatDate(user?.birthday)}</h3>
-            <h3>(Moto)</h3>
+            {user?.birthday && <h3>{formatDate(user?.birthday)}</h3>}
           </div>
         </div>
       </div>
@@ -526,7 +535,7 @@ const MinuPass = () => {
                             {resolveCategoryName(activity)}
                           </div>
 
-                        <h1 className="mt-2">Kuupäev</h1>
+                          <h1 className="mt-2">Kuupäev</h1>
                           <div className="bg-white rounded-md mt-2 p-2 text-black w-2/4 text-center">
                             {formatDate(activity.date)}
                           </div>
@@ -570,16 +579,26 @@ const MinuPass = () => {
             </div>
           </button>
           <button
-            className="bg-black text-white rounded-xl px-4 py-1.5"
+            className="flex relative cursor-pointer"
             onClick={handleExportPdf}
           >
-            Laadi alla PDF
+            <h1 className="bg-black text-white rounded-xl px-4 py-1.5 pr-14">
+              Laadi alla Ettevõtlikkuse pass (PDF)
+            </h1>
+            <div className="bg-main-cyan rounded-full h-12 absolute -top-1 -right-1 w-12">
+              <img src={downlaodIco} alt="Kopeeri" className="p-2 mt-1.5" />
+            </div>
           </button>
           <button
-            className="bg-black text-white rounded-xl px-4 py-1.5"
+            className="flex relative cursor-pointer"
             onClick={handleShareLinkedIn}
           >
-            Jaga LinkedInis
+            <h1 className="bg-black text-white rounded-xl px-4 py-1.5 pr-14">
+              Jaga Linkedinis
+            </h1>
+            <div className="bg-main-pink rounded-full h-12 absolute -top-1 -right-1 w-12">
+              <img src={shareIco} alt="Jaga" className="p-2 mt-1" />
+            </div>
           </button>
         </div>
         {shareMessage && <p className="mt-4 text-black">{shareMessage}</p>}
