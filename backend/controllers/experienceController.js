@@ -404,7 +404,11 @@ async getApproveExperience(req, res){
 
   async getAllExperiences(req, res) {
     this.handleRequest(req, res, async () => {
+      const normalizedStatus = normalizeStatus(req.query.status);
+      const where = normalizedStatus ? { status: normalizedStatus } : {};
+
       const experiences = await models.Experience.findAll({
+        where,
         include: [
           {
             model: models.Proof,
