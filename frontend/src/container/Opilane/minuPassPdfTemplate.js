@@ -1,3 +1,7 @@
+import { API_BASE_URL } from "../../API";
+
+const DEFAULT_PROFILE_IMAGE_PATH = "/uploads/1775504719007-485532141.png";
+
 const escapeHtml = (value = "") =>
   String(value)
     .replace(/&/g, "&amp;")
@@ -36,13 +40,20 @@ export const buildMinuPassPdfHtml = ({
           <span class="activity-pill">${category}</span>
         </div>
         <p class="activity-date">${date}</p>
-        ${previewImage ? `<img class="activity-image" src="${escapeHtml(previewImage)}" alt="Tegevuse pilt" />` : ""}
+        ${previewImage ? `<img class="activity-image" src="${escapeHtml(previewImage)}" alt="Tegevuse pilt" onerror="this.style.display='none';this.removeAttribute('src');" />` : ""}
         <p class="activity-description">${description}</p>
       </section>
     `;
   });
 
-  const profileImage = escapeHtml(user?.profileimg || "");
+  const rawProfileImage = (user?.profileimg || "").trim();
+  const resolvedProfileImage = resolveProofUrl(
+    rawProfileImage || DEFAULT_PROFILE_IMAGE_PATH,
+  );
+  const profileImage = escapeHtml(resolvedProfileImage);
+  const defaultProfileImage = escapeHtml(
+    `${API_BASE_URL}${DEFAULT_PROFILE_IMAGE_PATH}`,
+  );
   const userName = escapeHtml(user?.name || "Kasutaja");
 
   return `
@@ -55,7 +66,7 @@ export const buildMinuPassPdfHtml = ({
         <style>
           @page {
             size: A4;
-            margin: 12mm;
+            margin: 0;
           }
 
           * {
@@ -65,21 +76,27 @@ export const buildMinuPassPdfHtml = ({
           body {
             margin: 0;
             font-family: Arial, Helvetica, sans-serif;
-            color: #ffffff;
+            color: #0a0a0a;
             background: #000000;
             -webkit-print-color-adjust: exact;
             color-adjust: exact;
             print-color-adjust: exact;
           }
 
+          html {
+            background: #000000;
+          }
+
           .page {
-            min-height: 100vh;
-            background: linear-gradient(180deg, #ececec 0, #ececec 250px, #000000 250px, #000000 100%);
+            display: block;
+            width: 100%;
+            background: white;
+            margin: 0;
           }
 
           .profile {
             text-align: center;
-            padding: 28px 20px 16px;
+            padding: 28px 20px 24px;
             color: #0a0a0a;
           }
 
@@ -88,7 +105,6 @@ export const buildMinuPassPdfHtml = ({
             height: 140px;
             border-radius: 50%;
             object-fit: cover;
-            border: 5px solid #000;
             display: inline-block;
             background: #dcdcdc;
           }
@@ -126,6 +142,8 @@ export const buildMinuPassPdfHtml = ({
             padding: 8px 22px;
             font-size: 24px;
             font-weight: 700;
+            background: black;
+            color: #ffffff;
           }
 
           .activities {
@@ -134,11 +152,11 @@ export const buildMinuPassPdfHtml = ({
           }
 
           .activity-card {
-            border: 1px solid #2d2d2d;
             border-radius: 12px;
             padding: 14px;
             background: #090909;
             break-inside: avoid;
+            color: #ffffff;
           }
 
           .activity-header {
@@ -162,6 +180,7 @@ export const buildMinuPassPdfHtml = ({
             font-size: 13px;
             font-weight: 700;
             white-space: nowrap;
+            color: #ffffff;
           }
 
           .activity-date {
@@ -175,7 +194,6 @@ export const buildMinuPassPdfHtml = ({
             max-height: 280px;
             object-fit: cover;
             border-radius: 10px;
-            border: 1px solid #2f2f2f;
             margin-bottom: 10px;
           }
 
@@ -211,28 +229,24 @@ export const buildMinuPassPdfHtml = ({
       <body>
         <main class="page">
           <section class="profile">
-            ${
-              profileImage
-                ? `<img class="profile-image" src="${profileImage}" alt="Profiilipilt" />`
-                : `<div class="profile-placeholder" aria-label="Profiilipilt"><svg xml> <svg/></div>`
-            }
+            <img class="profile-image" src="${profileImage}" alt="Profiilipilt" onerror="if(this.src!=='${defaultProfileImage}'){this.src='${defaultProfileImage}';}" />
             <h1>${userName}</h1>
           </section>
-
-          <section class="content">
-            <div class="section-title-wrap">
-              <div class="section-title">Minu ettevotlikud kogemused</div>
-            </div>
-
-            <div class="activities">
-              ${
-                printableActivities.length > 0
-                  ? printableActivities.join("")
-                  : '<p class="empty-activities">Tegevusi ei leitud.</p>'
-              }
-            </div>
-          </section>
         </main>
+
+        <section class="content">
+          <div class="section-title-wrap">
+            <div class="section-title">Minu ettevotlikud kogemused</div>
+          </div>
+
+          <div class="activities">
+            ${
+              printableActivities.length > 0
+                ? printableActivities.join("")
+                : '<p class="empty-activities">Tegevusi ei leitud.</p>'
+            }
+          </div>
+        </section>
       </body>
     </html>
   `;

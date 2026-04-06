@@ -9,6 +9,8 @@ import downlaodIco from "../../assets/icons/download.png";
 import shareIco from "../../assets/icons/share.png";
 import { buildMinuPassPdfHtml } from "./minuPassPdfTemplate";
 
+const DEFAULT_PROFILE_IMAGE_PATH = "/uploads/1775504719007-485532141.png";
+
 const MinuPass = () => {
   const [user, setUser] = useState(null);
   const [activities, setActivities] = useState([]);
@@ -67,6 +69,12 @@ const MinuPass = () => {
     }
 
     return `${API_BASE_URL}${proofUrl}`;
+  };
+
+  const resolveProfileImageUrl = () => {
+    const profilePath =
+      typeof user?.profileimg === "string" ? user.profileimg.trim() : "";
+    return resolveProofUrl(profilePath || DEFAULT_PROFILE_IMAGE_PATH);
   };
 
   useEffect(() => {
@@ -366,7 +374,17 @@ const MinuPass = () => {
       <div className="h-560 w-full flex items-center">
         <div className="w-1/2 flex justify-center items-center">
           <div class="relative w-96 h-96 translate-y-12">
-            <img src={user?.profileimg} alt="" className="absolute z-20 w-64 h-64 rounded-full bg-black" />
+            <img
+              src={resolveProfileImageUrl()}
+              alt="Profiilipilt"
+              className="absolute z-20 w-64 h-64 rounded-full bg-black object-cover"
+              onError={(event) => {
+                const fallbackUrl = resolveProofUrl(DEFAULT_PROFILE_IMAGE_PATH);
+                if (event.currentTarget.src !== fallbackUrl) {
+                  event.currentTarget.src = fallbackUrl;
+                }
+              }}
+            />
             <div class="bg-main-pink w-36 h-36 rounded-full absolute -left-12 bottom-36">{ }</div>
             <div class="bg-main-green w-36 h-36 rounded-full absolute left-0 bottom-16">{ }</div>
             
