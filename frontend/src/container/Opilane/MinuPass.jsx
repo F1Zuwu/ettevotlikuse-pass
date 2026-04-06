@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import CustomSelect from "../../components/CustomSelect";
 import downlaodIco from "../../assets/icons/download.png";
 import shareIco from "../../assets/icons/share.png";
+import { buildMinuPassPdfHtml } from "./minuPassPdfTemplate";
 
 const MinuPass = () => {
   const [user, setUser] = useState(null);
@@ -24,6 +25,7 @@ const MinuPass = () => {
   const [shareMessage, setShareMessage] = useState("");
 
   const token = localStorage.getItem("token");
+  const normalizeStatus = (status = "") => status.toString().trim().toLowerCase();
 
   const formatDate = (dateString) => {
     if (!dateString) {
@@ -87,7 +89,7 @@ const MinuPass = () => {
                 Authorization: `Bearer ${token}`,
               },
             }),
-            fetch(`${API_BASE_URL}/api/experiences/`, {
+            fetch(`${API_BASE_URL}/api/experiences/?status=kinnitatud`, {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
@@ -136,19 +138,23 @@ const MinuPass = () => {
           (experience) => experience.user_id === profileData.user.user_id,
         );
 
+        const confirmedExperiences = userExperiences.filter(
+          (experience) => normalizeStatus(experience.status) === "kinnitatud",
+        );
+
         const selectedExperienceId = Number(
           new URLSearchParams(window.location.search).get("experience"),
         );
 
-        const initialSorted = [...userExperiences].sort(
+        const initialSorted = [...confirmedExperiences].sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
         );
 
-        setActivities(userExperiences);
+        setActivities(confirmedExperiences);
 
         const hasSelectedExperience =
           Number.isFinite(selectedExperienceId) &&
-          userExperiences.some(
+          confirmedExperiences.some(
             (experience) => experience.experience_id === selectedExperienceId,
           );
 
@@ -284,7 +290,69 @@ const MinuPass = () => {
   };
 
   const handleExportPdf = () => {
-    window.print();
+    const printFrame = document.createElement("iframe");
+    printFrame.style.position = "fixed";
+    printFrame.style.right = "0";
+    printFrame.style.bottom = "0";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    printFrame.style.opacity = "0";
+    document.body.appendChild(printFrame);
+
+    const html = buildMinuPassPdfHtml({
+      user,
+      activities,
+      formatDate,
+      resolveCategoryName,
+      resolveProofUrl,
+    });
+
+    const cleanupPrintFrame = () => {
+      window.removeEventListener("afterprint", cleanupPrintFrame);
+      if (printFrame.parentNode) {
+        printFrame.parentNode.removeChild(printFrame);
+      }
+    };
+
+    printFrame.onload = () => {
+      const frameWindow = printFrame.contentWindow;
+
+      if (!frameWindow) {
+        cleanupPrintFrame();
+        setShareMessage("PDF printi akent ei saanud valmistada. Proovi uuesti.");
+        return;
+      }
+
+      frameWindow.focus();
+
+      const triggerPrint = () => {
+        frameWindow.focus();
+        frameWindow.print();
+      };
+
+      if (frameWindow.document.readyState === "complete") {
+        setTimeout(triggerPrint, 100);
+      } else {
+        frameWindow.addEventListener("load", () => setTimeout(triggerPrint, 100), {
+          once: true,
+        });
+      }
+
+      window.addEventListener("afterprint", cleanupPrintFrame, { once: true });
+    };
+
+    const frameDocument = printFrame.contentDocument || printFrame.contentWindow?.document;
+
+    if (!frameDocument) {
+      cleanupPrintFrame();
+      setShareMessage("PDF printi akent ei saanud valmistada. Proovi uuesti.");
+      return;
+    }
+
+    frameDocument.open();
+    frameDocument.write(html);
+    frameDocument.close();
   };
 
   const handleShareLinkedIn = () => {
