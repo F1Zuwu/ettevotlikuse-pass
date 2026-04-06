@@ -25,7 +25,7 @@ require("dotenv").config();
         tls: { ciphers: "SSLv3" },
       });
 
-  const link = `http://localhost:5173/approve?token=${token}`;
+  const link = `http://epass.raimokivi.ee/approve?token=${token}`;
 
   await transporter.sendMail({
     from: `Approval System <${process.env.TELIA_EMAIL}>`,

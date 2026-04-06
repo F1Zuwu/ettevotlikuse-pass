@@ -70,6 +70,7 @@ const fileNameFromProof = (proof) => {
 };
 
 const Kinnita = () => {
+  const [Question, setQuestion] = useState("")
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
@@ -103,7 +104,9 @@ const Kinnita = () => {
           throw new Error(data.message || "Tegevuse laadimine ebaõnnestus.");
         }
 
+        
         setExperience(data);
+        fetchRelfectionQuestion(data.reflection_id)
       } catch (err) {
         setError(err.message || "Tegevuse laadimine ebaõnnestus.");
       } finally {
@@ -201,6 +204,15 @@ const Kinnita = () => {
     }
   };
 
+  const fetchRelfectionQuestion = (id) => {
+    fetch(`${API_BASE_URL}/api/reflection/${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data)
+      setQuestion(data.question)
+    })
+  }
+
   if (loading) {
     return (
       <div className="bg-[#efefef] min-h-screen">
@@ -261,19 +273,15 @@ const Kinnita = () => {
 
                 <h2 className="text-[30px] mt-6 mb-3">Reflektsiooniküsimus</h2>
                 <div className="bg-[#efefef] text-black rounded-[10px] min-h-37 p-4 text-[24px]">
-                  {experience?.reflection?.question ||
-                    "Reflektsiooniküsimus puudub"}
+                  <h1>{Question}</h1>
+                  {console.log(experience)}
+                  {experience?.reflectionanswer ||
+                    "Refleksiooniküsimus puudub"}
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              <div>
-                <h2 className="text-[30px] mb-3">Kasutaja email</h2>
-                <div className="bg-[#efefef] text-black rounded-[10px] h-12 px-4 text-[20px] flex items-center">
-                  {experience.user?.email || "-"}
-                </div>
-              </div>
 
               <div>
                 <h2 className="text-[30px] mb-3">Pildid/Lingid/Failid</h2>
@@ -330,7 +338,7 @@ const Kinnita = () => {
 
             <div className="mt-8 flex justify-center gap-4">
               <ActionButton
-                label={declining ? "Tagasi saadan..." : "Tagasi saada"}
+                label={declining ? "Laeb..." : "Lükka tagasi"}
                 accent="bg-main-pink"
                 onClick={handleDecline}
                 disabled={declining || approving}
@@ -338,7 +346,7 @@ const Kinnita = () => {
               />
 
               <ActionButton
-                label={approving ? "Kinnitatan..." : "Kinnita"}
+                label={approving ? "Kinnitan..." : "Kinnita"}
                 accent="bg-main-green"
                 onClick={handleApprove}
                 disabled={approving || declining}

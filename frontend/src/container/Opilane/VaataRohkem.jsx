@@ -56,6 +56,7 @@ const VaataRohkem = () => {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
   const [experience, setExperience] = useState(null);
+  const [question, setQuestion] = useState("")
 
   useEffect(() => {
     const fetchExperience = async () => {
@@ -66,6 +67,7 @@ const VaataRohkem = () => {
         const response = await getExperience(id);
         const data = response?.experience || response;
         setExperience(data || null);
+        fetchRelfectionQuestion(data.reflection_id)
       } catch {
         setError("Tegevuse laadimine ebaõnnestus.");
       } finally {
@@ -96,6 +98,16 @@ const VaataRohkem = () => {
       setDeleting(false);
     }
   };
+
+  const fetchRelfectionQuestion = (id) => {
+    fetch(`${API_BASE_URL}/api/reflection/${id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data)
+      setQuestion(data.question)
+    })
+  }
+  
 
   if (loading) {
     return (
@@ -159,13 +171,15 @@ const VaataRohkem = () => {
               <div>
                 <h2 className="text-[30px] mb-3">Tüüp</h2>
                 <div className="inline-flex items-center rounded-full bg-[#efefef] text-black px-6 h-12 text-[22px]">
+                  {console.log(experience)}
                   {experience?.category?.name || "Muu"}
                 </div>
 
-                <h2 className="text-[30px] mt-6 mb-3">Reflektsiooniküsimus</h2>
+                <h2 className="text-[30px] mt-6 mb-3">Refleksiooniküsimus</h2>
                 <div className="bg-[#efefef] text-black rounded-[10px] min-h-37 p-4 text-[24px]">
-                  {experience?.reflection?.question ||
-                    "Reflektsiooniküsimus puudub"}
+                  <h1>{question}</h1>
+                  {experience?.reflectionanswer ||
+                    "Refleksiooniküsimus puudub"}
                 </div>
               </div>
             </div>

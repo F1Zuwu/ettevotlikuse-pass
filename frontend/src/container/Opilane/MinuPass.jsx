@@ -376,7 +376,7 @@ const MinuPass = () => {
             filteredActivities.map((activity) => {
               const isExpanded = !!expandedIds[activity.experience_id];
               const reflectionQuestion =
-                activity?.reflection?.question || "Reflektsiooniküsimus puudub";
+                activity?.reflection?.question || "Refleksiooniküsimus puudub";
               const imageProofs = (activity.proofs || []).filter((proof) =>
                 imageUrlRegex.test(proof.proof_url || ""),
               );
@@ -428,7 +428,7 @@ const MinuPass = () => {
                           </div>
 
                           <h1 className="mt-2">
-                            Reflektsiooniküsimus
+                            Refleksiooniküsimus
                           </h1>
 
                           <div className="bg-white min-h-24 rounded-md mt-2 p-2">

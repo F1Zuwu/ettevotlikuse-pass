@@ -59,7 +59,7 @@ const LisaTegevus = () => {
   ];
 
   const reflectionOptions = [
-    { value: "", label: "Vali reflektsiooniküsimus" },
+    { value: "", label: "Vali Refleksioonküsimus" },
     ...reflections.map((reflection) => ({
       value: String(getReflectionId(reflection)),
       label: reflection.question,
@@ -110,7 +110,7 @@ const LisaTegevus = () => {
         }
       } catch (err) {
         console.error("Viga andmete laadimisel:", err);
-        setError("Kategooriate ja reflektsioonide laadimine ebaõnnestus");
+        setError("Kategooriate ja Refleksioonide laadimine ebaõnnestus");
       }
     };
     loadData();
@@ -178,7 +178,7 @@ const LisaTegevus = () => {
   // Create new reflection if needed
   const handleCreateReflection = async () => {
     if (!newReflectionQuestion.trim()) {
-      setError("Reflektsiooni küsimus ei saa olla tühi");
+      setError("Refleksioon küsimus ei saa olla tühi");
       return;
     }
     try {
@@ -189,7 +189,7 @@ const LisaTegevus = () => {
         reflection_id: getReflectionId(newReflection.data),
       }));
       setNewReflectionQuestion("");
-      setSuccess("Reflektsioon loodud!");
+      setSuccess("Refleksioon loodud!");
       setTimeout(() => setSuccess(""), 3000);
     } catch (err) {
       setError("Refleksiooni loomine ebaõnnestus");
@@ -219,7 +219,7 @@ const LisaTegevus = () => {
       return false;
     }
     if (!formData.reflection_id) {
-      setError("Reflektsiooniküsimus on kohustuslik");
+      setError("Refleksiooniküsimus on kohustuslik");
       return false;
     }
     return true;
@@ -420,7 +420,7 @@ const LisaTegevus = () => {
                 <div className="col-span-12 md:col-span-7 space-y-5">
                   <div>
                     <label className="block text-[28px] mb-3">
-                      Reflektsiooniküsimus *
+                      Refleksiooniküsimus *
                     </label>
                     <CustomSelect
                       fullWidth
