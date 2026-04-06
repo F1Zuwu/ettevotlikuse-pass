@@ -18,7 +18,7 @@ const Home = () => {
                     <h1 class="text-white text-6xl">Ettevõtlikkuse Pass</h1>
                     <h2 class="text-white text-4xl">Sinu idee, meie tugi!</h2>
                     <p class="text-white text-base mt-5">Sinu personaalne tööriist enesearengu<br></br>jälgimiseks ja tööturule kandideerimiseks</p>
-                    <button class="bg-white text-black rounded-full py-2 flex items-center gap-2 px-4 btn-border-pink mt-4">
+                    <button class="bg-white text-black rounded-full py-2 flex items-center gap-2 px-4 btn-border-pink mt-4 cursor-pointer" onClick={() => window.location.href = "/register"}>
                         Loo Ettevõtlikkuse passi kasutaja
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="15" viewBox="0 0 16 15" fill="none">
                             <path d="M15.7071 8.07107C16.0976 7.68055 16.0976 7.04739 15.7071 6.65686L9.34315 0.2929C8.95262 -0.0976243 8.31946 -0.0976243 7.92893 0.2929C7.53841 0.683424 7.53841 1.31659 7.92893 1.70711L13.5858 7.36397L7.92893 13.0208C7.53841 13.4113 7.53841 14.0445 7.92893 14.435C8.31946 14.8256 8.95262 14.8256 9.34315 14.435L15.7071 8.07107ZM0 7.36397L0 8.36397L15 8.36397V7.36397V6.36397L0 6.36397L0 7.36397Z" fill="#FF00FF" />
@@ -28,8 +28,8 @@ const Home = () => {
                         Ettevõtlikkuse passi tööriistad
                     </button>
                     <div class="flex flex-col mt-4">
-                    <a class="text-white">Halda oma passi {">"} </a>
-                    <a class="text-white">Halda oma tegevusi {">"} </a>
+                    <a onClick={() => window.location.href = "/mina/pass"} class="text-white cursor-pointer">Halda oma passi {">"} </a>
+                    <a onClick={() => window.location.href = "/mina/tegevused"} class="text-white cursor-pointer">Halda oma tegevusi {">"} </a>
                     </div>
                 </div>
                 <div class="w-1/2">

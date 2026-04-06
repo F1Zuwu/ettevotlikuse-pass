@@ -298,7 +298,7 @@ const MinuPass = () => {
       <div className="h-560 w-full flex items-center">
         <div className="w-1/2 flex justify-center items-center">
           <div class="relative w-96 h-96 translate-y-12">
-            <img src={user?.profileimg} alt="Profiilipilt" className="absolute z-20 w-64 h-64 rounded-full" />
+            <img src={user?.profileimg} alt="" className="absolute z-20 w-64 h-64 rounded-full bg-black" />
             <div class="bg-main-pink w-36 h-36 rounded-full absolute -left-12 bottom-36">{ }</div>
             <div class="bg-main-green w-36 h-36 rounded-full absolute left-0 bottom-16">{ }</div>
             

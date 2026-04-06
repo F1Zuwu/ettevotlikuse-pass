@@ -52,7 +52,8 @@ const Register = () => {
             .then((response) => response.json())
             .then((data) => {
                 if (data.success) {
-                    window.location.href = "/";
+                    localStorage.setItem("token", data.token);
+                    window.location.href = "/"
                 } else {
                     setError(data.message || "Registreerimine ebaõnnestus.");
                 }
